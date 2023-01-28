@@ -1,15 +1,15 @@
 import zipfile
-import pyzipper
-from pathlib import Path
 from base64 import b64encode
+from pathlib import Path
 
+import pyzipper
 from creart import create
 from graia.ariadne.message.element import Image
 
-from .pica import pica
-from shared.utils.text2img import md2img
 from shared.models.config import GlobalConfig
+from shared.utils.text2img import md2img
 
+from .model import Comic, ComicInfo
 
 config = create(GlobalConfig)
 DOWNLOAD_CACHE = config.functions["pica"]["download_cache"]
@@ -19,23 +19,25 @@ BASE_PATH = Path(__file__).parent
 SEARCH_CACHE_PATH = BASE_PATH / "cache" / "search"
 
 
-async def pica_t2i(comic_info, is_search: bool = False, rank: int | None = None):
-    thumb = await (await get_thumb(comic_info)).get_bytes()
+async def pica_t2i(comic_info: ComicInfo | Comic, rank: int | None = None):
+    # ComicInfo if is_search else Comic
+    thumb = await comic_info.thumb.get()
     md = f"<img src='data:image/png;base64, {b64encode(thumb).decode()}'/><br>"
     if rank:
         md += f"排名：{rank}<br>"
-    md += f"名称：{comic_info['title']}<br>"
-    md += f"作者：{comic_info['author']}<br>"
-    if is_search:
-        md += f"描述：{comic_info['description']}<br>"
-    md += f"分类：{'、'.join(comic_info['categories'])}<br>"
-    if is_search:
-        md += f"标签：{'、'.join(comic_info['tags'])}<br>",
-    md += f"页数：{comic_info['pagesCount']}<br>"
-    md += f"章节数：{comic_info['epsCount']}<br>"
-    md += f"完结状态：{'已完结' if comic_info['finished'] else '未完结'}<br>"
-    md += f"喜欢: {comic_info['totalLikes']}<br>"
-    md += f"浏览次数: {comic_info['totalViews']}"
+    md += f"名称：{comic_info.title}<br>"
+    md += f"作者：{comic_info.author}<br>"
+    if isinstance(comic_info, ComicInfo):
+        md += f"描述：{comic_info.description}<br>"
+    md += f"分类：{'、'.join(comic_info.categories)}<br>"
+    if isinstance(comic_info, ComicInfo):
+        md += f"标签：{'、'.join(comic_info.tags)}<br>" if comic_info.tags else ""
+    if isinstance(comic_info, ComicInfo):
+        md += f"页数：{comic_info.pagesCount}<br>"
+        md += f"章节数：{comic_info.epsCount}<br>"
+    md += f"完结状态：{'已完结' if comic_info.finished else '未完结'}<br>"
+    md += f"喜欢: {comic_info.totalLikes}<br>"
+    md += f"浏览次数: {comic_info.totalViews}"
     return Image(data_bytes=await md2img(md))
 
 
@@ -58,16 +60,3 @@ def zip_directory(path: Path, zip_name, pwd: str = "i_luv_sagiri") -> Path:
 
     zip_file.unlink()
     return encrypt_zip_file
-
-
-async def get_thumb(comic_info: dict) -> Image:
-    thumb = SEARCH_CACHE_PATH / f"{comic_info['_id']}.jpg"
-    if thumb.exists():
-        return Image(path=thumb)
-    else:
-        return Image(
-            data_bytes=await pica.download_image(
-                url=f"{comic_info['thumb']['fileServer']}/static/{comic_info['thumb']['path']}",
-                path=thumb if SEARCH_CACHE else None,
-            )
-        )
