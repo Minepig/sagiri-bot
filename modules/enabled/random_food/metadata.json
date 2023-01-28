@@ -1,0 +1,23 @@
+{
+  "name": "RandomFood",
+  "version": "0.2",
+  "display_name": "随机餐点",
+  "authors": [
+    "SAGIRI-kawaii",
+    "nullqwertyuiop"
+  ],
+  "description": "随机餐点",
+  "usage": [
+    "在群中发送 `/rand [breakfast|lunch|dinner|supper|tea|drink]`",
+    "或者 `/随机[早餐|午餐|晚餐|夜宵|奶茶|果茶]`"
+  ],
+  "example": [
+    "/rand breakfast",
+    "/随机午餐",
+    "/rand drink",
+    "/随机奶茶"
+  ],
+  "icon": "",
+  "prefix": ["/"],
+  "triggers": [""]
+}

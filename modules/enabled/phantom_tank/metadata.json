@@ -1,0 +1,18 @@
+{
+  "name": "PhantomTank",
+  "version": "0.2",
+  "display_name": "幻影坦克",
+  "authors": [
+    "SAGIRI-kawaii"
+  ],
+  "description": "一个幻影坦克生成器",
+  "usage": [
+    "在群中发送 `/phantom [显示图] [隐藏图]` 即可",
+    "使用选项 `-c` 可以生成彩色幻影坦克(效果不好)",
+    "可以使用 `/幻影` 代替 `/phantom`"
+  ],
+  "example": ["/phantom [黑白表情包] [涩图]", "/phantom -c [黑白表情包] [彩色涩图]"],
+  "icon": "",
+  "prefix": ["/"],
+  "triggers": ["phantom", "幻影"]
+}

@@ -102,7 +102,8 @@ if __name__ == '__main__':
         set_config()
     else:
         core = create(Sagiri)
-        core.install_modules(Path("modules") / "self_contained")
+        # core.install_modules(Path("modules") / "self_contained")
+        core.install_modules(Path("modules") / "enabled")
         core.install_modules(Path("modules") / "third_party")
         core.install_modules(Path("modules") / "required")
         core.launch()

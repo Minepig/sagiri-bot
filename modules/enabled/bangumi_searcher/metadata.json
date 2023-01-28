@@ -11,6 +11,6 @@
     "可以使用`/anifind`、`/bangufind`、`/搜番`、`/识番`、`/以图搜番`触发该功能"
   ],
   "icon": "",
-  "prefix": ["/", ""],
+  "prefix": ["/"],
   "triggers": ["anifind", "bangufind", "搜番", "识番", "以图搜番"]
 }

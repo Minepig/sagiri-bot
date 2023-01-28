@@ -1,0 +1,14 @@
+{
+  "name": "Repeater",
+  "version": "0.2",
+  "display_name": "复读机",
+  "authors": [
+    "SAGIRI-kawaii",
+    "nullqwertyuiop"
+  ],
+  "description": "一个复读插件",
+  "usage": ["有三条以上相同信息时自动触发，此外有概率在任意消息发送时触发"],
+  "icon": "",
+  "prefix": [],
+  "triggers": []
+}
