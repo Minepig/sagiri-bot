@@ -27,15 +27,15 @@
     "uninstallable": false,
     "reloadable": true,
     "setting": {
-      "prefix": ["/"],
+      "prefix": [".", "!!", "/"],
       "alias": ["setting", "设置"]
     },
     "user": {
-      "prefix": ["/"],
+      "prefix": [".", "!!", "/"],
       "alias": ["user", "用户"]
     },
     "blacklist": {
-      "prefix": ["/"],
+      "prefix": [".", "!!", "/"],
       "alias": ["blacklist", "黑名单"]
     }
   }

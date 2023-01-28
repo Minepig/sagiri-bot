@@ -1,0 +1,15 @@
+{
+  "name": "DDCheck",
+  "version": "0.2",
+  "display_name": "成分查询",
+  "authors": [
+    "SAGIRI-kawaii",
+    "from: MeetWq"
+  ],
+  "description": "一个查成分的插件",
+  "usage": ["在群中发送 `/ddcheck {B站UID}` 即可"],
+  "example": ["/ddcheck 208259", "/查成分 208259"],
+  "icon": "",
+  "prefix": ["/"],
+  "triggers": ["ddcheck", "查成分", "查看成分"]
+}

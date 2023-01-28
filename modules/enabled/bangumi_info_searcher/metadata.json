@@ -1,0 +1,14 @@
+{
+  "name": "BangumiInfoSearcher",
+  "version": "0.2",
+  "display_name": "番剧查询",
+  "authors": [
+    "SAGIRI-kawaii"
+  ],
+  "description": "一个可以搜索番剧信息的插件",
+  "usage": ["在群中发送 `/anime|bangumi|番剧|番剧查询|查番 {番剧名}` 即可"],
+  "example": ["/anime 埃罗芒阿老师"],
+  "icon": "",
+  "prefix": ["/"],
+  "triggers": ["anime", "bangumi", "番剧", "番剧查询", "查番"]
+}
