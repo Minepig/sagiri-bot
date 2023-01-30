@@ -91,7 +91,7 @@ async def random_meal(app: Ariadne, group: Group, source: Source, option: MatchR
         listening_events=[GroupMessage],
         inline_dispatchers=[Twilight([
             get_command(__file__, channel.module),
-            RegexMatch(r"[随隨][机機]"),
+            RegexMatch(r"rand|[随隨][机機]"),
             UnionMatch("奶茶", "果茶", "tea", "drink") @ "option"
         ])],
         decorators=[
