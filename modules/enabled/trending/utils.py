@@ -1,3 +1,4 @@
+import datetime
 import random
 import aiohttp
 from loguru import logger
@@ -5,7 +6,7 @@ from bs4 import BeautifulSoup
 
 from creart import create
 from graia.ariadne.message.chain import MessageChain
-
+from graia.ariadne.message.element import Source, Forward, ForwardNode
 from shared.models.config import GlobalConfig
 
 config = create(GlobalConfig)
@@ -18,11 +19,30 @@ async def get_weibo_trending() -> MessageChain:
         async with session.get(url=weibo_hot_url) as resp:
             data = await resp.json()
     data = data["data"]
-    text_list = [f"随机数:{random.randint(0, 10000)}", "\n微博实时热榜:"]
-    for index, i in enumerate(data, start=1):
-        text_list.append(f"\n{index}. {i['word'].strip()}")
-    text = "".join(text_list).replace("#", "")
-    return MessageChain(text)
+    now = datetime.datetime.now()
+    time_count = -(len(data) + 10)
+    forward_nodes = [
+        ForwardNode(
+            sender_id=config.default_account,
+            time=now + datetime.timedelta(seconds=time_count),
+            sender_name="纱雾酱",
+            message_chain=MessageChain(f"随机数:{random.randint(0, 10000)}" + "\n微博实时热榜:"),
+        )
+    ]
+    time_count += 1
+    for index, item in enumerate(data, start=1):
+        text = f"{index}. " + item["word"].replace("#", "").strip() + f" ({item['num']})"
+        forward_nodes.append(
+            ForwardNode(
+                sender_id=config.default_account,
+                time=now + datetime.timedelta(seconds=time_count),
+                sender_name="纱雾酱",
+                message_chain=MessageChain(text),
+            )
+        )
+        time_count += 1
+
+    return MessageChain(Forward(node_list=forward_nodes))
 
 
 async def get_zhihu_trending() -> MessageChain:
@@ -31,12 +51,30 @@ async def get_zhihu_trending() -> MessageChain:
         async with session.get(url=zhihu_hot_url) as resp:
             data = await resp.json()
     data = data["data"]
-    text_list = [f"随机数:{random.randint(0, 10000)}", "\n知乎实时热榜:"]
-    for index, i in enumerate(data, start=1):
-        text_list.append(f"\n{index}. {i['target']['title'].strip()}")
-    text = "".join(text_list).replace("#", "")
-    print(text)
-    return MessageChain(text)
+    now = datetime.datetime.now()
+    time_count = -(len(data) + 10)
+    forward_nodes = [
+        ForwardNode(
+            sender_id=config.default_account,
+            time=now + datetime.timedelta(seconds=time_count),
+            sender_name="纱雾酱",
+            message_chain=MessageChain(f"随机数:{random.randint(0, 10000)}" + "\n知乎实时热榜:"),
+        )
+    ]
+    time_count += 1
+    for index, item in enumerate(data, start=1):
+        text = f"{index}. " + item["target"]["title"].strip() + f" ({item['detail_text']})"
+        forward_nodes.append(
+            ForwardNode(
+                sender_id=config.default_account,
+                time=now + datetime.timedelta(seconds=time_count),
+                sender_name="纱雾酱",
+                message_chain=MessageChain(text),
+            )
+        )
+        time_count += 1
+
+    return MessageChain(Forward(node_list=forward_nodes))
 
 
 async def get_github_trending() -> MessageChain:
@@ -49,24 +87,41 @@ async def get_github_trending() -> MessageChain:
         async with session.get(url=url, headers=headers, proxy=proxy) as resp:
             html = await resp.read()
     soup = BeautifulSoup(html, "html.parser")
-    articles = soup.find_all("article", {"class": "Box-row"})
+    articles = list(soup.find_all("article", {"class": "Box-row"}))
 
-    text_list = [f"随机数:{random.randint(0, 10000)}", "\ngithub实时热榜:\n"]
-    index = 0
-    for i in articles:
+    now = datetime.datetime.now()
+    time_count = -(len(articles) + 10)
+    forward_nodes = [
+        ForwardNode(
+            sender_id=config.default_account,
+            time=now + datetime.timedelta(seconds=time_count),
+            sender_name="纱雾酱",
+            message_chain=MessageChain(f"随机数:{random.randint(0, 10000)}" + "\ngithub实时热榜:"),
+        )
+    ]
+    time_count += 1
+
+    for index, item in enumerate(articles, start=1):
         try:
-            index += 1
             title = (
-                i.find("h1")
+                item.find("h1")
                 .get_text()
                 .replace("\n", "")
                 .replace(" ", "")
                 .replace("\\", " \\ ")
             )
-            text_list.append(f"\n{index}. {title}\n")
-            text_list.append(f"\n    {i.find('p').get_text().strip()}\n")
+            desc = item.find('p').get_text().strip()
+            text = f"{index}. {title}\n\n    {desc}"
+            forward_nodes.append(
+                ForwardNode(
+                    sender_id=config.default_account,
+                    time=now + datetime.timedelta(seconds=time_count),
+                    sender_name="纱雾酱",
+                    message_chain=MessageChain(text),
+                )
+            )
+            time_count += 1
         except Exception as e:
             logger.error(e)
 
-    text = "".join(text_list).replace("#", "")
-    return MessageChain(text)
+    return MessageChain(Forward(node_list=forward_nodes))

@@ -27,7 +27,7 @@ def get_all_channels() -> list[str]:
     ignore = ["__init__.py", "__pycache__"]
     dirs = [
         "modules/required",
-        "modules/self_contained",
+        "modules/enabled",
         "modules/third_party"
     ]
     modules = []
