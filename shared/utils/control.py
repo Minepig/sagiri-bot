@@ -27,7 +27,7 @@ from shared.models.saya_data import get_saya_data
 from shared.models.public_group import PublicGroup
 from shared.models.blacklist import GroupBlackList
 from shared.models.group_setting import GroupSetting
-from shared.utils.permission import user_permission_require
+
 from shared.utils.data_related import update_user_call_count_plus
 from shared.models.frequency_limit import GlobalFrequencyLimitDict
 from shared.orm.tables import Setting, UserPermission, UserCalledCount
@@ -179,9 +179,9 @@ class Switch(object):
             member = event.sender
             group = event.sender.group
             if not await group_setting.get_setting(group, Setting.switch):
-                if response_administrator and Permission.check(group, member, Permission.GROUP_ADMIN):
+                if response_administrator and await Permission.check(group, member, Permission.GROUP_ADMIN):
                     return
-                if response_master and Permission.check(group, member, Permission.MASTER):
+                if response_master and await Permission.check(group, member, Permission.MASTER):
                     return
                 raise ExecutionStop()
             return
@@ -314,9 +314,9 @@ class Function(object):
                     )
                 raise ExecutionStop()
             if not await group_setting.get_setting(group, Setting.switch):
-                if response_administrator and Permission.check(group, member, Permission.GROUP_ADMIN):
+                if response_administrator and await Permission.check(group, member, Permission.GROUP_ADMIN):
                     return
-                if response_master and Permission.check(group, member, Permission.MASTER):
+                if response_master and await Permission.check(group, member, Permission.MASTER):
                     return
                 raise ExecutionStop()
             return

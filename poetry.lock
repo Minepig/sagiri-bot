@@ -5472,4 +5472,4 @@ super-resolution = ["realesrgan", "basicsr", "imageio"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "5d87ba3f4079ebc1bff5844786da8c9179d3c2a5925c9e84b51cdad1ad2405b4"
+content-hash = "960af1a1d0d5f87c97efc3b6fa6ca9a667b9e05bf4dd4b46a63b314e8818c0bf"
