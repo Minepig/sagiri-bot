@@ -53,7 +53,7 @@ saya_data = create(SayaData)
 )
 async def show_installed_module(app: Ariadne, group: Group):
     modules = [ColumnTitle(title="发送 '卸载/重载插件 {编号}' 来卸载/重载对应插件")]
-    for i, c in enumerate(saya.channels):
+    for i, c in enumerate(get_installed_channels()):       # 改为使用util提供的函数
         plugin_meta = load_plugin_meta_by_module(c)
         modules.append(
             ColumnList(rows=[
@@ -160,14 +160,14 @@ async def module_operation(
             Distribute.distribute(),
             Function.require(channel.module, notice=True),
             BlackListControl.enable(),
-            Permission.require(Permission.SUPER_ADMIN)
+            Permission.require(Permission.GROUP_ADMIN)  # 降低权限需求，本来是SUPER_ADMIN
         ]
     )
 )
 async def module_switch(app: Ariadne, group: Group, source: Source, operation: RegexResult, module: RegexResult):
     operation = operation.result.display
     module = module.result.display
-    modules = list(saya.channels.keys())
+    modules = get_installed_channels()     # 改用util提供的函数
     if module.isdigit():
         if not 0 <= int(module) - 1 < len(modules):
             return await app.send_group_message(
@@ -175,7 +175,15 @@ async def module_switch(app: Ariadne, group: Group, source: Source, operation: R
             )
         target_module = modules[int(module) - 1]
     else:
-        target_module = next((c for c in saya.channels.keys() if saya.channels[c].meta["name"] == module), None)
+        target_module = next(
+            (
+                c for c in saya.channels
+                if saya.channels[c].meta["name"] == module
+                or saya.channels[c].meta["display_name"] == module    # 加入通过display_name指定模块
+                or c.split('.')[-1] == module   # 加入通过模块名称指定模块
+            ),
+            None
+        )
         if not target_module:
             return await app.send_group_message(
                 group, MessageChain(f"没有插件 {module} 诶~再检查一下？"), quote=source

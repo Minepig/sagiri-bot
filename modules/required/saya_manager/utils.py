@@ -44,8 +44,8 @@ def get_all_channels() -> list[str]:
 
 
 def get_installed_channels() -> list[str]:
-    return list(saya.channels.keys())
+    return sorted(saya.channels)        # 这里加上排序，和helper模块保持一致
 
 
 def get_not_installed_channels() -> list[str]:
-    return [c for c in get_all_channels() if c not in saya.channels]
+    return sorted(c for c in get_all_channels() if c not in saya.channels)      # 这里加上排序，和helper模块保持一致

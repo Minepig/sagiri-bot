@@ -36,7 +36,6 @@ group_setting = create(GroupSetting)
 
 
 class Permission(object):
-
     """用于管理权限的类，不应被实例化"""
 
     MASTER = 4
@@ -58,16 +57,16 @@ class Permission(object):
         member = member.id if isinstance(member, Member) else member
         group = group.id if isinstance(group, Group) else group
         if result := await orm.fetchone(
-            select(UserPermission.level).where(
-                UserPermission.group_id == group, UserPermission.member_id == member
-            )
+                select(UserPermission.level).where(
+                    UserPermission.group_id == group, UserPermission.member_id == member
+                )
         ):
             return result[0]
         with contextlib.suppress(sqlalchemy.exc.IntegrityError):
             await orm.insert_or_ignore(
                 UserPermission,
                 [UserPermission.group_id == group, UserPermission.member_id == member],
-                {"group_id": group, "member_id": member, "level": 1},
+                {"group_id": group, "member_id": member, "level": Permission.DEFAULT},
             )
         return Permission.DEFAULT
 
@@ -79,14 +78,16 @@ class Permission(object):
         """
 
         async def perm_check(
-            group: Group | None = None, member: Member | None = None, source: Source | None = None
+                group: Group | None = None, member: Member | None = None, source: Source | None = None
         ) -> NoReturn:
             if not group or not member:
                 return
             if not Permission.DEFAULT <= level <= Permission.MASTER:
                 raise ValueError(f"invalid level: {level}")
             member_level = await cls.get(group, member)
-            if member_level == cls.MASTER:
+            if level == cls.GROUP_ADMIN \
+                    and member_level == cls.USER \
+                    and member.permission >= MemberPerm.Administrator:
                 pass
             elif member_level < level:
                 await ariadne_ctx.get().send_group_message(
@@ -97,6 +98,24 @@ class Permission(object):
                 raise ExecutionStop()
 
         return Depend(perm_check)
+
+    @classmethod
+    async def check(cls, group: int | Group, member: int | Member, level: int) -> bool:
+        """
+        检查用户的权限是否足够
+        :param group: 群组实例或QQ群号
+        :param member: 用户实例或QQ号
+        :param level: 限制等级
+        :return: 等级足够则返回True
+        """
+        if not Permission.DEFAULT <= level <= Permission.MASTER:
+            raise ValueError(f"invalid level: {level}")
+        member_level = await cls.get(group, member)
+        if level == cls.GROUP_ADMIN \
+                and member_level == cls.USER \
+                and member.permission >= MemberPerm.Administrator:
+            return True  # 对群管理员做特判
+        return member_level >= level
 
 
 class FrequencyLimit(object):
@@ -110,11 +129,11 @@ class FrequencyLimit(object):
 
     @staticmethod
     def require(
-        func_name: str,
-        weight: int,
-        total_weight: int = 15,
-        override_level: int = Permission.MASTER,
-        group_admin_override: bool = True,
+            func_name: str,
+            weight: int,
+            total_weight: int = 15,
+            override_level: int = Permission.MASTER,
+            group_admin_override: bool = True,
     ) -> Depend:
         async def limit(event: GroupMessage) -> NoReturn:
             if await Permission.get(event.sender.group, event.sender) >= override_level:
@@ -137,8 +156,8 @@ class FrequencyLimit(object):
                     )
                 raise ExecutionStop()
             if (
-                frequency_limit_instance.get(group, member, func_name) + weight
-                >= total_weight
+                    frequency_limit_instance.get(group, member, func_name) + weight
+                    >= total_weight
             ):
                 await ariadne_ctx.get().send_group_message(
                     group,
@@ -155,14 +174,14 @@ class FrequencyLimit(object):
 
 class Switch(object):
     @staticmethod
-    def enable(response_administrator: bool = False) -> Depend:
+    def enable(response_administrator: bool = False, response_master: bool = True) -> Depend:
         async def switch(event: GroupMessage) -> NoReturn:
-            member = event.sender.id
-            group = event.sender.group.id
+            member = event.sender
+            group = event.sender.group
             if not await group_setting.get_setting(group, Setting.switch):
-                if response_administrator and await user_permission_require(
-                    group, member, 2
-                ):
+                if response_administrator and Permission.check(group, member, Permission.GROUP_ADMIN):
+                    return
+                if response_master and Permission.check(group, member, Permission.MASTER):
                     return
                 raise ExecutionStop()
             return
@@ -184,7 +203,6 @@ class BlackListControl(object):
 
 
 class Interval(object):
-
     """用于冷却管理的类，不应被实例化"""
 
     last_exec: DefaultDict[int, Tuple[int, float]] = defaultdict(lambda: (1, 0.0))
@@ -199,11 +217,11 @@ class Interval(object):
 
     @classmethod
     def require(
-        cls,
-        suspend_time: float = 10,
-        max_exec: int = 1,
-        override_level: int = Permission.MASTER,
-        silent: bool = False,
+            cls,
+            suspend_time: float = 10,
+            max_exec: int = 1,
+            override_level: int = Permission.MASTER,
+            silent: bool = False,
     ) -> Depend:
         """
         指示用户每执行 `max_exec` 次后需要至少相隔 `suspend_time` 秒才能再次触发功能
@@ -273,10 +291,11 @@ class Function(object):
 
     @staticmethod
     def require(
-        name: str,
-        response_administrator: bool = False,
-        log: bool = True,
-        notice: bool = False,
+            name: str,
+            response_administrator: bool = False,
+            log: bool = True,
+            notice: bool = False,
+            response_master: bool = True,
     ) -> Optional[Depend]:
         async def judge(app: Ariadne, group: Group | None = None, member: Member | None = None) -> NoReturn:
             saya_data = get_saya_data()
@@ -295,7 +314,9 @@ class Function(object):
                     )
                 raise ExecutionStop()
             if not await group_setting.get_setting(group, Setting.switch):
-                if member and response_administrator and await user_permission_require(group, member, 2):
+                if response_administrator and Permission.check(group, member, Permission.GROUP_ADMIN):
+                    return
+                if response_master and Permission.check(group, member, Permission.MASTER):
                     return
                 raise ExecutionStop()
             return
@@ -359,7 +380,7 @@ class Distribute(object):
     @staticmethod
     def distribute(require_admin: bool = False, show_log: bool = False) -> Depend:
         async def judge(
-            app: Ariadne, group: Group | None = None, member: Member | None = None, source: Source | None = None
+                app: Ariadne, group: Group | None = None, member: Member | None = None, source: Source | None = None
         ) -> NoReturn:
             if not group or not member:
                 return
@@ -381,6 +402,7 @@ class Distribute(object):
                 raise ExecutionStop()
             if show_log:
                 print(app.account, "keep")
+
         return Depend(judge)
 
 
@@ -391,4 +413,5 @@ class Anonymous(object):
             if member.id == 80000000:
                 await app.send_group_message(group, MessageChain(message))
                 raise ExecutionStop()
+
         return Depend(judge)
