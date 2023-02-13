@@ -10,8 +10,7 @@ from graia.ariadne.message.parser.twilight import Twilight, ElementMatch
 
 from shared.models.config import GlobalConfig
 from shared.utils.module_related import get_command
-from shared.utils.permission import user_permission_require
-from shared.utils.control import Function, BlackListControl, UserCalledCountControl, Distribute
+from shared.utils.control import Function, Permission, BlackListControl, UserCalledCountControl, Distribute
 
 channel = Channel.current()
 
@@ -49,7 +48,7 @@ async def message_revoke(app: Ariadne, group: Group, member: Member, event: Grou
                 if event.quote.sender_id == member.id:
                     if datetime.now().replace(tzinfo=None) - event.source.time.replace(tzinfo=None) < timedelta(minutes=2):
                         return await app.send_message(group, "你自己没有手是吧，没超过两分钟自己撤回！")
-                elif not await user_permission_require(group, member, 3):
+                elif not await Permission.check(group, member, 3):
                     return await app.send_message(group, "爪巴，你没有权限撤回其他人的消息！")
                 try:
                     await app.recall_message(msg, group)

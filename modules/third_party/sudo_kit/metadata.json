@@ -1,0 +1,14 @@
+{
+  "name": "Sudo Kit",
+  "version": "0.1",
+  "display_name": "管理员套装",
+  "authors": [
+    "Minepig"
+  ],
+  "description": "群管理员执法工具",
+  "usage": ["需要机器人有群管理员权限", "别急，还没写"],
+  "example": ["/sudo rm -rf /*"],
+  "icon": "",
+  "prefix": ["/"],
+  "triggers": ["sudo"]
+}
