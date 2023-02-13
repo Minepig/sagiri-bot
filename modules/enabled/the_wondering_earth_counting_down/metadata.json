@@ -8,7 +8,7 @@
   "description": "",
   "usage": [
     "在群中发送 `/WECD -t top -s start -c count -e end -b bottom` 即可，其中",
-    "-t 为上部文本，-s为倒计时开始文本",
+    "-t为上部文本",
     "-s为倒计时开始文本",
     "-c为倒计时时间（不支持汉字）",
     "-e为倒计时结束文本",
