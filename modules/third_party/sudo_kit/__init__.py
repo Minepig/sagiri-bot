@@ -42,7 +42,7 @@ channel.description("群管理员执法工具")
         ],
     )
 )
-async def tarot(app: Ariadne, group: Group, source: Source):
+async def rm_mother(app: Ariadne, group: Group, source: Source):
     file_path = Path("resources") / "image" / "mother_removed.png"
     await app.send_group_message(group, MessageChain("执行命令中，正在删除文件……"), quote=source)
     await asyncio.sleep(1)

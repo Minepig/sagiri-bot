@@ -1,0 +1,18 @@
+{
+  "name": "Arknight Gacha Simulator",
+  "version": "0.1",
+  "display_name": "明日方舟寻访模拟器",
+  "authors": [
+    "Minepig"
+  ],
+  "description": "经过一些轻度魔改的明日方舟寻访模拟器",
+  "usage": [
+    "发送 `/arkgacha [次数]` 或 `/寻访 [次数]`即可",
+    "不填次数默认为十连抽，次数可取1~20",
+    "全群水深共享，抽到小车和二星干员是正常情况"
+  ],
+  "example": ["/arkgacha 10"],
+  "icon": "",
+  "prefix": ["/"],
+  "triggers": ["arkgacha", "寻访"]
+}

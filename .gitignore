@@ -168,3 +168,4 @@ modules/self_contained/emoji_mix/assets/update.json
 /cache
 modules/enabled/dd_check/vtb_list.json
 poetry.lock
+modules/third_party/arknight_gacha/gacha_data.csv
