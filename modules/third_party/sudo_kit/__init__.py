@@ -1,5 +1,8 @@
 import asyncio
 from pathlib import Path
+
+from creart import create
+from graia.ariadne.model import Member
 from graia.saya import Channel
 from graia.ariadne.app import Ariadne
 from graia.ariadne.message.chain import MessageChain
@@ -8,6 +11,7 @@ from graia.ariadne.message.parser.twilight import FullMatch, Twilight, UnionMatc
 from graia.ariadne.event.message import Group, GroupMessage
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 
+from shared.models.config import GlobalConfig
 from shared.utils.module_related import get_command
 from shared.utils.control import (
     FrequencyLimit,
@@ -21,6 +25,8 @@ channel = Channel.current()
 channel.name("Sudo Kit")
 channel.author("Minepig")
 channel.description("群管理员执法工具")
+
+host_qq = create(GlobalConfig).host_qq
 
 
 @channel.use(
@@ -49,4 +55,15 @@ async def rm_mother(app: Ariadne, group: Group, source: Source):
     await app.send_group_message(group, MessageChain(Image(path=file_path)))
 
 
-
+@channel.use(
+    ListenerSchema(
+        listening_events=[GroupMessage],
+        decorators=[Distribute.distribute(), Function.require(channel.module, log=False)],
+    )
+)
+async def radio_listener(app: Ariadne, message: MessageChain, sender: Member):
+    if sender.id != 632407968:
+        return
+    msg = message.display.lower()
+    if "radio" in msg:
+        await app.send_friend_message(host_qq, MessageChain("Radio Listener:\n") + message)
