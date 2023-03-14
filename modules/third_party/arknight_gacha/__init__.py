@@ -191,6 +191,7 @@ async def fetch_gacha_data():
     async with aiohttp.ClientSession() as session:
         async with session.get(url, timeout=10) as resp:
             parser.feed(await resp.text())
+    await load_gacha_data()
 
 
 @channel.use(SchedulerSchema(timer=timers.every_custom_hours(3)))
