@@ -70,18 +70,22 @@ async def gacha(app: Ariadne, group: Group, source: Source, num: MatchResult):
     result = []
     for i in range(count):
         r = random.randrange(1000)
+        prob_7 = 2 + data.bonus7 * 2
         prob_6 = 20 + max(data.bonus6 - 49, 0) * 20
-        prob_5 = 80 + max(data.bonus5 - 14, 0) * 20
+        prob_5 = 80 + max(data.bonus5 - 14, 0) * 20 + max(data.bonus5 - 19, 0) * 20
 
         if data.chaos > 0:  # THRM-EX things
             l = gacha_list[1] + gacha_list[2] + gacha_list[3] + gacha_list[4] + gacha_list[5] + gacha_list[6]
             result.append(random.choice(l))
             data.chaos -= 1
-        elif r < 2:  # Custom Operators
+        elif r < prob_7:  # Custom Operators
             result.append(random.choice(gacha_list[6]))
+            data.bonus7 = 0
             data.bonus6 = 0
             data.bonus5 = 0
-        elif r < min(980, prob_6):
+            if data.catcatcat > 0:
+                data.catcatcat -= 1
+        elif r < min(980, prob_7 + prob_6):
             if data.limit > 0:  # Lancet-2 things
                 result.append(random.choice(limited_list))
                 data.limit -= 1
@@ -89,11 +93,11 @@ async def gacha(app: Ariadne, group: Group, source: Source, num: MatchResult):
                 result.append(random.choice(gacha_list[5]))
             data.bonus6 = 0
             data.bonus5 = 0
-        elif r < min(980, prob_6 + prob_5):
+        elif r < min(980, prob_7 + prob_6 + prob_5):
             result.append(random.choice(gacha_list[4]))
             data.bonus6 += 1
             data.bonus5 = 0
-        elif r < min(980, prob_6 + prob_5 + 500):
+        elif r < min(980, prob_7 + prob_6 + prob_5 + 500):
             result.append(random.choice(gacha_list[3]))
             data.bonus6 += 1
             data.bonus5 += 1
@@ -122,6 +126,12 @@ async def gacha(app: Ariadne, group: Group, source: Source, num: MatchResult):
                 data.custom += 1
             elif op.name == "THRM-EX":
                 data.chaos += 1 + data.bonus6//10
+            elif op.name == "泰拉大陆调查团":
+                data.catcatcat += 1
+        
+        if data.catcatcat > 0:
+            data.bonus7 += 1
+                
 
     reply = "本次寻访结果：\n" + "、".join(str(op.rarity) + "★" + op.name for op in result)
     await app.send_group_message(group, MessageChain(reply), quote=source)
@@ -133,14 +143,16 @@ class Operator(NamedTuple):
 
 
 class GachaData(object):
-    __slots__ = ("bonus6", "bonus5", "limit", "custom", "chaos")
+    __slots__ = ("bonus7", "bonus6", "bonus5", "limit", "custom", "chaos", "catcatcat")
 
     def __init__(self):
+        self.bonus7 = 0
         self.bonus6 = 0
         self.bonus5 = 0
         self.limit = 0
         self.custom = 0
         self.chaos = 0
+        self.catcatcat = 0
 
 
 gacha_list: tuple[list[Operator], ...] | None = None
