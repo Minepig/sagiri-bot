@@ -12,6 +12,6 @@
     "/谷歌验证码 -e BUGS[图片]"
   ],
   "icon": "",
-  "prefix": ["/", ""],
-  "triggers": ["谷歌验证码"]
+  "prefix": ["/"],
+  "triggers": ["谷歌验证码", "captcha"]
 }
