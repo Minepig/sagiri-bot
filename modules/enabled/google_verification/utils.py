@@ -13,7 +13,7 @@ EN_BOTTOM = "If there are none, click skip"
 
 def gen_verification(name: str, image: bytes, language: Literal["en", "zh"] = "zh") -> bytes:
     image = Image.open(BytesIO(image))
-    image = image.resize((900, 900))
+    image = image.resize((932, 932))
     canvas = Image.new("RGB", (1000, 1535), "#FFF")
     length = 233
     for i in range(4):
