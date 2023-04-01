@@ -6,10 +6,13 @@
     "SAGIRI-kawaii"
   ],
   "description": "",
-  "usage": ["在群中发送 `/谷歌验证码 [-e] {标题}{图片}` 即可"],
+  "usage": [
+    "在群中发送 `/captcha [-e] {标题} {图片}` 即可",
+    "`captcha` 可用 `谷歌验证码` 代替，`-e` 开关用于指定使用英语"
+  ],
   "example": [
-    "/谷歌验证码 BUGS[图片]",
-    "/谷歌验证码 -e BUGS[图片]"
+    "/谷歌验证码 bugs [图片]",
+    "/captcha -e bugs [图片]"
   ],
   "icon": "",
   "prefix": ["/"],

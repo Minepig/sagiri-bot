@@ -8,7 +8,7 @@ FONT_SMALL = ImageFont.truetype(str(Path.cwd() / "resources" / "fonts" / "ArialE
 ZH_TOP = "请选择包含"
 ZH_BOTTOM = "的所有图块，如果没有，请点击“跳过”"
 EN_TOP = "Select all squares with"
-EN_BOTTOM = "If there are none, clik skip"
+EN_BOTTOM = "If there are none, click skip"
 
 
 def gen_verification(name: str, image: bytes, language: Literal["en", "zh"] = "zh") -> bytes:
