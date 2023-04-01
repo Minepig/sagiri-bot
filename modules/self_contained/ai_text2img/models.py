@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, Field
 
 
 @dataclass
@@ -8,7 +8,6 @@ class Text2Image(object):
     prompt_style: str = "None"
     prompt_style2: str = "None"
     steps: int = 20
-    sampler_index: int = 0
     restore_faces: bool = False
     tiling: bool = False
     n_iter: int = 1
@@ -21,7 +20,7 @@ class Text2Image(object):
     seed_resize_from_w: int = 0
     height: int = 512
     width: int = 512
-    enable_hr: bool = False
+    enable_hr: bool = True
     scale_latent: bool = True
     denoising_strength: float = 0.7
 
@@ -30,14 +29,13 @@ class Text2Image(object):
 class Image2Image(object):
     prompt: str
     negative_prompt: str
+    init_images: list[str]
     prompt_style: str = "None"
     prompt_style2: str = "None"
     init_img_with_mask: None = None
     init_mask: None = None
     mask_mode: None = None
-    init_img: str = ""
     steps: int = 20
-    sampler_index: int = 0
     mask_blur: int = 0
     inpainting_fill: int = 0
     restore_faces: bool = False
@@ -57,6 +55,7 @@ class Image2Image(object):
     upscale_overlap: int = 0
     inpaint_full_res: bool = False
     inpainting_mask_invert: int = 0
+    include_init_images: bool = True
 
 
 DEFAULT_NEGATIVE_PROMPT = "lowers, bad anatomy, bad hands, text, error, missing fingers, " + \
