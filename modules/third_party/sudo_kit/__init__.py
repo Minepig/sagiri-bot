@@ -67,4 +67,4 @@ async def radio_listener(app: Ariadne, message: MessageChain, sender: Member, gr
     msg = message.display.lower()
     if "radio" in msg:
         await app.send_friend_message(host_qq, MessageChain("Radio Listener:\n") + message)
-    return await app.send_group_message(group, message)
+        return await app.send_group_message(group, message)
