@@ -61,9 +61,10 @@ async def rm_mother(app: Ariadne, group: Group, source: Source):
         decorators=[Distribute.distribute(), Function.require(channel.module, log=False)],
     )
 )
-async def radio_listener(app: Ariadne, message: MessageChain, sender: Member):
+async def radio_listener(app: Ariadne, message: MessageChain, sender: Member, group: Group):
     if sender.id != 632407968:
         return
     msg = message.display.lower()
     if "radio" in msg:
         await app.send_friend_message(host_qq, MessageChain("Radio Listener:\n") + message)
+    return await app.send_group_message(group, message)
