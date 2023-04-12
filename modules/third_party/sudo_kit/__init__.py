@@ -68,5 +68,5 @@ async def radio_listener(app: Ariadne, message: MessageChain, sender: Member, gr
     if "radio" in msg:
         await app.send_friend_message(host_qq, MessageChain("Radio Listener:\n") + message)
         command = MessageChain([Plain("/rumor "), At(sender), Plain(message.display)])
-        event = GroupMessage(message_chain=command, sender=sender, source=source)
+        event = GroupMessage(messageChain=command, sender=sender, source=source)
         app.service.broadcast.postEvent(event)
