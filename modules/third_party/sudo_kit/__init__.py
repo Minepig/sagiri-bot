@@ -6,7 +6,7 @@ from graia.ariadne.model import Member
 from graia.saya import Channel
 from graia.ariadne.app import Ariadne
 from graia.ariadne.message.chain import MessageChain
-from graia.ariadne.message.element import Image, Source
+from graia.ariadne.message.element import At, Image, Plain, Source
 from graia.ariadne.message.parser.twilight import FullMatch, Twilight, UnionMatch
 from graia.ariadne.event.message import Group, GroupMessage
 from graia.saya.builtins.broadcast.schema import ListenerSchema
@@ -61,10 +61,12 @@ async def rm_mother(app: Ariadne, group: Group, source: Source):
         decorators=[Distribute.distribute(), Function.require(channel.module, log=False)],
     )
 )
-async def radio_listener(app: Ariadne, message: MessageChain, sender: Member, group: Group):
+async def radio_listener(app: Ariadne, message: MessageChain, sender: Member, group: Group, source: Source):
     if sender.id != 632407968:
         return
     msg = message.display.lower()
     if "radio" in msg:
         await app.send_friend_message(host_qq, MessageChain("Radio Listener:\n") + message)
-        return await app.send_group_message(group, message)
+        command = MessageChain([Plain("/rumor "), At(sender), Plain(message.display)])
+        event = GroupMessage(message_chain=command, sender=sender, source=source)
+        app.service.broadcast.postEvent(event)
