@@ -65,7 +65,7 @@ async def radio_listener(app: Ariadne, message: MessageChain, sender: Member, gr
     if sender.id != 632407968:
         return
     msg = message.display.lower()
-    if "radio" in msg:
+    if not msg.startswith("/rumor") and "radio" in msg:
         await app.send_friend_message(host_qq, MessageChain("Radio Listener:\n") + message)
         command = MessageChain([Plain("/rumor "), At(sender), Plain(message.display)])
         event = GroupMessage(messageChain=command, sender=sender, source=source)
